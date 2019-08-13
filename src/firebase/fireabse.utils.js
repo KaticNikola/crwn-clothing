@@ -19,7 +19,6 @@ export const creteUserProfileDocument = async (userAuth, additionalData )=>{
   
   const userRef =  firestore.doc(`users/${userAuth.uid}`);
   const snapShot = await userRef.get()
-  console.log(snapShot)
   
   if(!snapShot.exists) {  //if user doesent exits > create one
     const { displayName, email } = userAuth;
