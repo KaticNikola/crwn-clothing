@@ -8,7 +8,8 @@ import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop';
 import Header from './components/header/header';
 import SignInAndSignUp from './pages/signIn-signUp/signIn-signUp';
-import { auth } from './firebase/fireabse.utils';
+import { auth, creteUserProfileDocument } from './firebase/fireabse.utils';
+
 
 
 
@@ -22,10 +23,23 @@ class App extends React.Component {
   unsbscribeFromAuth = null
 
   componentDidMount(){
-    this.unsbscribeFromAuth = auth.onAuthStateChanged( user =>{
-      this.setState({ currentUser: user })
-
-      console.log(user)
+    this.unsbscribeFromAuth = auth.onAuthStateChanged( async userAuth =>{
+      if(userAuth){
+        const userRef = await creteUserProfileDocument(userAuth);
+        
+        userRef.onSnapshot( snapshot =>{
+          this.setState({
+            currentUser:{
+              id: snapshot.id,
+              ...snapshot.data()
+            }
+          })
+          console.log(this.state)
+        })
+      } else{
+        this.setState({ currentUser: userAuth })
+      }
+      
     })
   }
 
@@ -35,7 +49,7 @@ componentWillUnmount(){
 
   render(){
     return (
-      <div >
+      <div>
         <Header currentUser={ this.state.currentUser } />
         <Switch>
              <Route exact path="/" component={ HomePage } />
